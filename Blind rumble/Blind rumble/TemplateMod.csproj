@@ -1,0 +1,75 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RumblePath Condition="$([MSBuild]::IsOSPlatform('Windows'))">C:\Program Files (x86)\Steam\steamapps\common\RUMBLE</RumblePath>
+    <RumblePath Condition="$([MSBuild]::IsOSPlatform('Linux'))">/mnt/c/Program Files (x86)/Steam/steamapps/common/RUMBLE</RumblePath>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- MelonLoader DLLs -->
+    <Reference Include="MelonLoader">
+      <HintPath>$(RumblePath)/MelonLoader/net6/MelonLoader.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Common">
+      <HintPath>$(RumblePath)/MelonLoader/net6/Il2CppInterop.Common.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>$(RumblePath)/MelonLoader/net6/Il2CppInterop.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(RumblePath)/MelonLoader/net6/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Game and Unity DLLs -->
+    <Reference Include="Il2CppRUMBLE.Runtime">
+      <HintPath>$(RumblePath)/MelonLoader/Il2CppAssemblies/Il2CppRUMBLE.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>$(RumblePath)/MelonLoader/Il2CppAssemblies/Il2Cppmscorlib.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(RumblePath)/MelonLoader/Il2CppAssemblies/UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(RumblePath)/MelonLoader/Il2CppAssemblies/UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+	<Reference Include="Unity.InputSystem">
+		<HintPath>$(RumblePath)\MelonLoader\Il2CppAssemblies\Unity.InputSystem.dll</HintPath>
+		<Private>false</Private>
+	</Reference>
+
+    <!-- Optional mod dependencies: uncomment the references you need -->
+
+    <!-- RumbleModdingAPI - Uncomment to use the community modding API -->
+    <!--
+    <Reference Include="RumbleModdingAPI">
+      <HintPath>$(RumblePath)/Mods/RumbleModdingAPI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    -->
+
+    <!-- ModUI - Uncomment to use the in-game mod settings UI -->
+    <!--
+    <Reference Include="ModUI">
+      <HintPath>$(RumblePath)/Mods/ModUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    -->
+  </ItemGroup>
+
+  <!-- Auto-deploy: copy built DLL into RUMBLE Mods folder (skipped if game not installed) -->
+  <Target Name="DeployToGame" AfterTargets="Build" Condition="Exists('$(RumblePath)/Mods')">
+    <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(RumblePath)/Mods/" />
+    <Message Importance="high" Text="Deployed $(AssemblyName).dll to $(RumblePath)/Mods/" />
+  </Target>
+
+</Project>
