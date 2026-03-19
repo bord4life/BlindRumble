@@ -1,0 +1,2 @@
+C:\Users\johar\source\repos\Blind rumble\Blind rumble\obj\Debug\BlindRumble.csproj.AssemblyReference.cache
+C:\Users\johar\source\repos\Blind rumble\Blind rumble\obj\Debug\BlindRumble.csproj.CoreCompileInputs.cache
