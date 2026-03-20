@@ -1,15 +1,12 @@
-﻿using BlindRumble;
+﻿using HarmonyLib;
 using Il2CppRUMBLE.Combat.ShiftStones;
+using Il2CppRUMBLE.Managers;
 using RumbleModdingAPI.RMAPI;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using HarmonyLib;
 
-namespace Blind_rumble
+namespace BlindRumble
 {
     internal class ShifstoneFix
     {
@@ -25,10 +22,10 @@ namespace Blind_rumble
                     return;
                 }
 
-                Transform poolParent = Pools.Structures.GetPoolCube().transform.parent;
+                Transform poolParent = PoolManager.instance.GetPool("RockCube").poolParent;
                 GameObject newParent = GameObjects.DDOL.GameInstance.GetGameObject();
 
-                var playerManager = Managers.GetPlayerManager();
+                var playerManager = PlayerManager.instance;
                 if (playerManager != null && playerManager.AllPlayers != null)
                 {
 

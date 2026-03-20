@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using HarmonyLib;
 
-namespace Blind_rumble
+namespace BlindRumble
 {
     internal class GameDetector
     {

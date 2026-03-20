@@ -1,17 +1,12 @@
-﻿using BlindRumble;
-using Il2CppRUMBLE.Players.Subsystems;
+﻿using Il2CppRUMBLE.Players.Subsystems;
 using MelonLoader;
-using RumbleModdingAPI.RMAPI;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using HarmonyLib;
 using Il2CppRUMBLE.Managers;
 
-namespace Blind_rumble
+namespace BlindRumble
 {
     internal class TelekeneticPulse
     {
@@ -27,13 +22,13 @@ namespace Blind_rumble
                     return;
                 }
 
-                Transform poolParent = Pools.Structures.GetPoolCube().transform.parent;
+                Transform poolParent = PoolManager.Instance.GetPool("RockCube").poolParent; ;
 
                 var modInstance = MelonLoader.MelonMod.RegisteredMelons.FirstOrDefault(m => m is Class1) as Class1;
                 if (modInstance != null)
                 {
 
-                    var localPlayer = Managers.GetPlayerManager().localPlayer;
+                    var localPlayer = PlayerManager.instance.LocalPlayer;
                     bool isLocalPlayer = false;
 
                     if (localPlayer != null)
@@ -54,6 +49,7 @@ namespace Blind_rumble
             }
         }
 
+        [HarmonyPatch(typeof(Il2CppRUMBLE.MoveSystem.HoldModifier), "Execute", new Type[] { typeof(Il2CppRUMBLE.MoveSystem.IProcessor), typeof(Il2CppRUMBLE.MoveSystem.StackConfiguration) })]
         public static class HoldStartEvent
         {
             private static void Postfix(Il2CppRUMBLE.MoveSystem.HoldModifier __instance, Il2CppRUMBLE.MoveSystem.IProcessor processor, Il2CppRUMBLE.MoveSystem.StackConfiguration config)// //Il2CppRUMBLE.MoveSystem.Stack __instance,
@@ -63,13 +59,13 @@ namespace Blind_rumble
                     return;
                 }
 
-                Transform poolParent = Pools.Structures.GetPoolCube().transform.parent;
+                Transform poolParent = PoolManager.Instance.GetPool("RockCube").poolParent; ;
 
                 var modInstance = MelonLoader.MelonMod.RegisteredMelons.FirstOrDefault(m => m is Class1) as Class1;
                 if (modInstance != null)
                 {
 
-                    var localPlayer = Managers.GetPlayerManager().localPlayer;
+                    var localPlayer = PlayerManager.Instance.localPlayer;
                     bool isLocalPlayer = false;
 
                     if (localPlayer != null)

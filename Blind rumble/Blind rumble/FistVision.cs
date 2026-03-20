@@ -1,16 +1,12 @@
-﻿using BlindRumble;
-using Il2CppRUMBLE.Players.Subsystems;
-using RumbleModdingAPI.RMAPI;
+﻿using Il2CppRUMBLE.Players.Subsystems;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Il2CppRUMBLE.Players.Subsystems.PlayerVR;
 using HarmonyLib;
 using UnityEngine.Playables;
+using Il2CppRUMBLE.Managers;
+using UnityEngine;
 
-namespace Blind_rumble
+namespace BlindRumble
 {
     internal class FistVision
     {
@@ -78,9 +74,9 @@ namespace Blind_rumble
                 }
 
 
-                var playerManager = Managers.GetPlayerManager();
-                Transform poolParent = Pools.Structures.GetPoolCube().transform.parent;
-                List<GameObjects> overlappedObjects = new List<GameObjects>();
+                var playerManager = PlayerManager.instance.LocalPlayer;
+                Transform poolParent = PoolManager.Instance.GetPool("RockCube").poolParent;
+                List<GameObject> overlappedObjects = new List<GameObject>();
 
                 Class1.ActivateSonar(first.gameObject.transform.position, 5f, poolParent, overlappedObjects);
             }

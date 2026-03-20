@@ -1,16 +1,13 @@
-﻿using BlindRumble;
-using Il2CppRUMBLE.Environment;
+﻿using Il2CppRUMBLE.Environment;
 using MelonLoader;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using HarmonyLib;
-using RumbleModdingAPI;
+using Il2CppRUMBLE.Managers;
 
-namespace Blind_rumble
+namespace BlindRumble
 {
     internal class StructurePulse
     {
@@ -87,8 +84,8 @@ namespace Blind_rumble
 
                 var testMaterial = Class1.newParent.transform.Find("YellowGhostPoseObject").gameObject.GetComponent<Renderer>().material;
 
-                GameObject controller = Managers.GetPlayerManager().localPlayer.Controller.gameObject;
-                Transform poolParent = Pools.Structures.GetPoolCube().transform.parent;
+                GameObject controller = PlayerManager.instance.LocalPlayer.Controller.gameObject;
+                Transform poolParent = PoolManager.instance.GetPool("RockCube").poolParent;
 
                 switch (name)
                 {

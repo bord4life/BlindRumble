@@ -14,7 +14,7 @@ using Il2CppTMPro;
 using UnityEngine.UI;
 using Il2CppRUMBLE.Managers;
 using Il2CppRootMotion.FinalIK;
-using UnityEngine.InputSystem.XR;
+// using UnityEngine.InputSystem.XR;
 using MelonLoader.Utils;
 using RumbleModUI;
 using static RumbleModdingAPI.RMAPI.GameObjects.Gym.TUTORIAL.Worldtutorials.CombatCarvings.CombatCarvingCollisions.Carvingfoot;
@@ -23,11 +23,13 @@ using BuildInfo = BlindRumble.Information.BuildInfo;
 using Il2CppRUMBLE.Pools;
 using static MelonLoader.MelonLogger;
 using Il2Cpp;
-using UnityEngine.SocialPlatforms;
+// using UnityEngine.SocialPlatforms;
 using Il2CppRUMBLE.Players;
 using static Il2CppRootMotion.FinalIK.RagdollUtility;
-using static RumbleModdingAPI.RMAPIGameObjects.DDOL.GameInstance.UI.RecordingUI.Panel;
+using static RumbleModdingAPI.RMAPI.GameObjects.DDOL.GameInstance.UI.RecordingUI.Panel;
 using static RumbleModdingAPI.RMAPI.Calls.ControllerMap;
+using Il2CppRUMBLE.Audio;
+using AudioManager = RumbleModdingAPI.RMAPI.AudioManager;
 
 [assembly: MelonInfo(typeof(BlindRumble.Class1), BuildInfo.ModName, BuildInfo.ModVersion, BuildInfo.Author)]
 [assembly: MelonGame(null, null)]
@@ -54,15 +56,16 @@ namespace BlindRumble
         public static GameObject enemyHealth;
         public static GameObject playerHealth;
         public static short enemyHealthAmount;
+        public static AudioCall seismicSlam;
+        public static 
 
 
-        
 
 
         public static bool modEnabledAllTime = true; // MAKE SURE TO TURN OFF ON RELEASE -------------------------------------------------------------------------------------------------------
 
 
-        
+
 
 
 
@@ -87,7 +90,17 @@ namespace BlindRumble
         private ModSetting<bool> modEnabledUI;
         private ModSetting<bool> filledInCharacterMaterial;
         private ModSetting<bool> filledInOtherCharacterMaterial;
+        private ModSetting<bool> audioEnabled;
+        private ModSetting<string> soundFilePath;
 
+
+        public override void OnEarlyInitializeMelon()
+        {
+            base.OnEarlyInitializeMelon();
+
+            // This makes sure the audio can be played, and puts a warning in the log if file isnt there
+            SoundCheck((string)soundFilePath.SavedValue);
+        }
 
         public override void OnLateInitializeMelon()
         {
@@ -111,6 +124,8 @@ namespace BlindRumble
             modEnabledUI = Mod.AddToList("Is Mod Enabled", true, 0, "Requires exiting into the Gym to take effect", new Tags());
             filledInCharacterMaterial = Mod.AddToList("Is Local Player Model Material White", false, 0, "HEAVILY ADVISED TO TURN ON IF RECORDING WITH LIV. Changes the material on YOUR player model to fully white. Fixes smearing in LIV. Requires exiting into the Gym to take effect", new Tags());
             filledInOtherCharacterMaterial = Mod.AddToList("Is Enemy Player Model Material White", false, 0, "Changes the material on ENEMY player models to fully white. Requires exiting into the Gym to take effect", new Tags());
+            audioEnabled = Mod.AddToList("Is Seismic Slam audio enabled?", true, 0, "Enables the Seismic Slam audio.", new Tags());
+            soundFilePath = Mod.AddToList("Seismic Slam File Path", @"\BlindRumble\seismic_slam_buildup.wav", "Path to Seismic Slam audio. You can use custom audio, but that isn't tested.", new Tags());
 
             Mod.GetFromFile();
 
@@ -141,35 +156,27 @@ namespace BlindRumble
             mesh.triangles = triangles;
         }
 
-
-        private static IEnumerator PlaySound(string FilePath)
+        public static void SoundCheck(string soundFilePath)
         {
 
-            var reader = new Mp3FileReader(FilePath);
-            var waveOut = new WaveOutEvent();
-            waveOut.Init(reader);
-            waveOut.Play();
-            while (waveOut.PlaybackState == PlaybackState.Playing)
+            if (System.IO.File.Exists(MelonEnvironment.UserDataDirectory + @soundFilePath))
             {
-                yield return new WaitForFixedUpdate();
-            }
 
-            reader.Dispose();
-            waveOut.Dispose();
-            yield break;
+                seismicSlam = AudioManager.CreateAudioCall(@soundFilePath, 50);
+
+            }
+            else
+            {
+
+                MelonLogger.Warning("YOU ARE MISSING THE AUDIO FILE!!! AUDIO WILL NOT BE PLAYED!!!");
+
+            }
         }
 
 
-
-        public static void PlaySoundIfFileExists(string soundFilePath)
+        public static void PlaySound(string soundFilePath)
         {
-            try
-            {
-                MelonCoroutines.Start(PlaySound(MelonEnvironment.UserDataDirectory + soundFilePath));
-            }
-            catch (Exception ex)
-            {
-            }
+           
         }
 
         public override void OnLateUpdate()
@@ -1247,8 +1254,9 @@ namespace BlindRumble
 
                     //MATCH SLAB ONE
                     //GRAPHICS SLAB
-                    GameObjects.Map0.Logic.MatchSlabOne.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.FloarRock0.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
-                    GameObjects.Map0.Logic.MatchSlabOne.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.FloatRock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
+                    GameObjects.Map0.Logic.MatchSlabOne.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.Floatrock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
+                    //MIGHT BE WRONG^^^^---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                    GameObjects.Map0.Logic.MatchSlabOne.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.Floatrock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
 
                     var materials1 = GameObjects.Map0.Logic.MatchSlabOne.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.MeshGraphicsslab.GetGameObject().GetComponent<Renderer>().materials;
 
@@ -1311,8 +1319,10 @@ namespace BlindRumble
 
                     //MATCH SLAB TWO
                     //GRAPHICS SLAB
-                    GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.FloarRock0.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
-                    GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.FloatRock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
+                    GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.Floatrock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
+                    //MIGHT BE WRONG^^^^---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                    GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.Floatrock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
+
 
                     var materials2 = GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.MeshGraphicsslab.GetGameObject().GetComponent<Renderer>().GetComponent<Renderer>().materials;
 
@@ -1328,7 +1338,7 @@ namespace BlindRumble
                     GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Replaybutton.InteractionButton.Button.Spring.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
 
 
-                    GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Replaybutton.RePlayText.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
+                    GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Replaybutton.Replaytext.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
 
                     GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Replaybutton.Interactionlightlocal.Light.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
                     GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Replaybutton.Interactionlightlocal.Lightplug.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
@@ -1344,7 +1354,7 @@ namespace BlindRumble
                     GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Requeuebutton.InteractionButton.Button.Spring.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
 
 
-                    GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Requeuebutton.ReQueueText.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
+                    GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Requeuebutton.Requeuetext.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
 
 
                     //EXIT MATCH BUTTON
@@ -1354,7 +1364,7 @@ namespace BlindRumble
                     GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Exitmatchbutton.InteractionButton.Button.Spring.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
 
 
-                    GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Exitmatchbutton.RePlayText.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
+                    GameObjects.Map0.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Exitmatchbutton.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
 
 
 
@@ -1454,8 +1464,9 @@ namespace BlindRumble
 
                     //MATCH SLAB ONE
                     //GRAPHICS SLAB
-                    GameObjects.Map1.Logic.MatchSlabOne.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.FloarRock0.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
-                    GameObjects.Map1.Logic.MatchSlabOne.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.FloatRock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
+                    GameObjects.Map1.Logic.MatchSlabOne.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.Floatrock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
+                    //MIGHT BE WRONG^^^^---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                    GameObjects.Map1.Logic.MatchSlabOne.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.Floatrock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
 
                     var materials1 = GameObjects.Map1.Logic.MatchSlabOne.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.MeshGraphicsslab.GetGameObject().GetComponent<Renderer>().materials;
 
@@ -1518,8 +1529,9 @@ namespace BlindRumble
 
                     //MATCH SLAB TWO
                     //GRAPHICS SLAB
-                    GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.FloarRock0.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
-                    GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.FloatRock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
+                    GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.Floatrock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
+                    //MIGHT BE WRONG^^^^---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                    GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.Floatrock1.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
 
                     var materials2 = GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.GraphicsSlab.Mesh.MeshGraphicsslab.GetGameObject().GetComponent<Renderer>().GetComponent<Renderer>().materials;
 
@@ -1535,7 +1547,7 @@ namespace BlindRumble
                     GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Replaybutton.InteractionButton.Button.Spring.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
 
 
-                    GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Replaybutton.RePlayText.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
+                    GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Replaybutton.Replaytext.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
 
                     GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Replaybutton.Interactionlightlocal.Light.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
                     GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Replaybutton.Interactionlightlocal.Lightplug.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
@@ -1551,7 +1563,7 @@ namespace BlindRumble
                     GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Requeuebutton.InteractionButton.Button.Spring.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
 
 
-                    GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Requeuebutton.ReQueueText.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
+                    GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Requeuebutton.Requeuetext.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
 
 
                     //EXIT MATCH BUTTON
@@ -1561,7 +1573,7 @@ namespace BlindRumble
                     GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Exitmatchbutton.InteractionButton.Button.Spring.GetGameObject().GetComponent<Renderer>().material = yellowGhostPoseMaterial;
 
 
-                    GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Exitmatchbutton.RePlayText.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
+                    GameObjects.Map1.Logic.MatchSlabTwo.MatchSlab.Slabbuddymatchvariant.MatchForm.Exitmatchbutton.GetGameObject().GetComponent<TextMeshPro>().color = new Color(0.5f, 0.5f, 0.5f, 1f);
 
 
 
@@ -2197,7 +2209,7 @@ namespace BlindRumble
         }
 
 
-        private static IEnumerator ScaleSphereOverTime(GameObject sphere, Vector3 targetScale, float duration)
+        public static IEnumerator ScaleSphereOverTime(GameObject sphere, Vector3 targetScale, float duration)
         {
             Vector3 initialScale = sphere.transform.localScale;
             float elapsedTime = 0f;
@@ -2562,7 +2574,7 @@ namespace BlindRumble
             if (matchFound)
             {
 
-                int stepIndex = GameObjects.Gym.LOGIC.HeinhouserProducts.MatchConsole.RankRelaxControls.GetGameObject().transform.GetChild(8).gameObject.GetComponent<Il2CppRUMBLE.Interactions.InteractionBase.InteractionSlider>().snappedStep;
+                int stepIndex = GameObjects.Gym.INTERACTABLES.MatchConsole..GetGameObject().transform.GetChild(8).gameObject.GetComponent<Il2CppRUMBLE.Interactions.InteractionBase.InteractionSlider>().snappedStep;
                 if (stepIndex == 5)
                 {
                     friendQueue = true;
@@ -2981,62 +2993,6 @@ namespace BlindRumble
                 Class1.ActivateSonar(collision.GetContact(0).point, 5f, poolParent, overlappedObjects, true);
 
 
-            }
-        }
-
-
-
-        [HarmonyPatch(typeof(PlayerMovement), "OnBecameGrounded")]
-        private static class PlayerMovement_OnBecameGrounded_Patch
-        {
-            private static void Postfix(PlayerMovement __instance)
-            {
-                if ((UnityEngine.Object)__instance != (UnityEngine.Object)Singleton<PlayerManager>.instance.localPlayer.Controller.GetSubsystem<PlayerMovement>())
-                {
-                    return;
-                }
-
-                if (!modEnabled || Class1.bodyMaterial == null || !midair)
-                {
-                    return;
-                }
-
-                midair = false;
-
-                var playerManager = Managers.GetPlayerManager();
-                Transform poolParent = Pools.Structures.GetPoolCube().transform.parent;
-                List<GameObject> overlappedObjects = new List<GameObject>();
-
-                Transform newParent = GameObjects.DDOL.GameInstance.GetGameObject().transform;
-
-                if (newParent.Find("HealthBarCamera") && newParent.Find("HealthBarCamera").gameObject.active)
-                {
-                    PlaySoundIfFileExists(@"\BlindRumble\seismic_slam_buildup_arcade.mp3");
-                }
-                else
-                {
-                    PlaySoundIfFileExists(@"\BlindRumble\seismic_slam_buildup.mp3");
-                }
-
-
-                Class1.ActivateSonar(Managers.GetPlayerManager().localPlayer.Controller.transform.position, 1000f, poolParent, overlappedObjects);
-
-                UnityEngine.Material glassMaterial1 = newParent.transform.Find("GlassObject").gameObject.GetComponent<Renderer>().material;
-
-                GameObject shockwaveSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                GameObject.Destroy(shockwaveSphere.GetComponent<Collider>());
-
-                //FlipNormals(shockwaveSphere);
-
-                shockwaveSphere.transform.localScale = Vector3.zero;
-                shockwaveSphere.transform.position = playerManager.localPlayer.Controller.transform.GetChild(1).GetChild(0).GetChild(0).position + playerManager.localPlayer.Controller.transform.GetChild(1).GetChild(0).GetChild(0).TransformDirection(new Vector3(0, 0, 3f));
-
-                Renderer sphereRenderer = shockwaveSphere.GetComponent<Renderer>();
-                sphereRenderer.material = glassMaterial1;
-
-
-
-                MelonCoroutines.Start(Class1.ScaleSphereOverTime(shockwaveSphere, new Vector3(50f, 50f, 50f), 2f));
             }
         }
     }
