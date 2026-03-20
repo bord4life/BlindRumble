@@ -1,6 +1,0 @@
-C:\Users\johar\source\repos\BlindRumble\obj\Debug\net6.0\BlindRumble.csproj.AssemblyReference.cache
-C:\Users\johar\source\repos\BlindRumble\obj\Debug\net6.0\BlindRumble.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\johar\source\repos\BlindRumble\obj\Debug\net6.0\BlindRumble.AssemblyInfoInputs.cache
-C:\Users\johar\source\repos\BlindRumble\obj\Debug\net6.0\BlindRumble.AssemblyInfo.cs
-C:\Users\johar\source\repos\BlindRumble\obj\Debug\net6.0\BlindRumble.csproj.CoreCompileInputs.cache
-C:\Users\johar\source\repos\BlindRumble\obj\Debug\net6.0\BlindRumble.sourcelink.json
