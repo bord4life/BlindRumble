@@ -11,10 +11,10 @@ namespace BlindRumble
 {
     internal class GameDetector
     {
-        [HarmonyPatch(typeof(Il2CppRUMBLE.Environment.Matchmaking.MatchmakeConsole), "MatchmakeStatusUpdated", new Type[] { typeof(MatchmakingHandler.MatchmakeStatus), typeof(bool) })]
+        [HarmonyPatch(typeof(Il2CppRUMBLE.Environment.Matchmaking.MatchmakeConsole), "MatchmakeStatusUpdated", new Type[] { typeof(MatchmakingHandler.MatchmakeStatus) })]
         public static class Patch1
         {
-            private static void Prefix(GameObject __instance, MatchmakingHandler.MatchmakeStatus status, bool instantLeverStep)
+            private static void Prefix(GameObject __instance, MatchmakingHandler.MatchmakeStatus status)
             {
 
                 if (status == MatchmakingHandler.MatchmakeStatus.Success)

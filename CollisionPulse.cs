@@ -15,12 +15,17 @@ namespace BlindRumble
         [HarmonyPatch(typeof(Il2CppRUMBLE.MoveSystem.Structure), "OnCollisionEnter", new Type[] { typeof(Collision) })]
         public static class StructureCollisionEvent
         {
-            private static void Prefix(Collision collision)
+            private static bool Prefix(Collision collision)
             {
                 if (SonarMode.modEnabled == false)
                 {
-                    return;
+                    return true;
                 }
+                if (PlayerManager.instance == null || PlayerManager.instance.LocalPlayer == null)
+                {
+                    return false;
+                }
+
 
                 var modInstance = MelonLoader.MelonMod.RegisteredMelons.FirstOrDefault(m => m is SonarMode) as SonarMode;
 
@@ -35,12 +40,12 @@ namespace BlindRumble
                 if (SonarMode.IsDescendantOf(collision.GetContact(0).thisCollider.gameObject.transform, poolParent, false, true, processedVisuals, false, true) && collision.contactCount == 1 || SonarMode.IsDescendantOf(collision.GetContact(0).otherCollider.gameObject.transform, poolParent, false, true, processedVisuals, false, true) && collision.contactCount == 1)
                 {
                     modInstance.RenderClone(collision.GetContact(0).thisCollider.gameObject, poolParent, false, false, true, true);
-                    return;
+                    return true;
                 }
 
                 SonarMode.ActivateSonar(collision.GetContact(0).point, 5f, poolParent, overlappedObjects, true);
 
-
+                return false;
             }
         }
     }

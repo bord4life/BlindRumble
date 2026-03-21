@@ -11,7 +11,7 @@ namespace BlindRumble
 {
     internal class StructurePulse
     {
-        [HarmonyPatch(typeof(Il2CppRUMBLE.MoveSystem.Structure), "Start")]
+        [HarmonyPatch(typeof(Il2CppRUMBLE.MoveSystem.Structure), "Awake")]
         public static class StructureSpawn
         {
             private static void Postfix(ref Il2CppRUMBLE.MoveSystem.Structure __instance)

@@ -7,7 +7,7 @@ using Il2CppRUMBLE.Players.Subsystems;
 using Il2CppRUMBLE.Pools;
 using Il2CppRUMBLE.Utilities;
 using Il2CppSystem;
-using Il2CppSystem.Collections.Generic;
+// using Il2CppSystem.Collections.Generic;
 using Il2CppTMPro;
 using MelonLoader;
 // using UnityEngine.InputSystem.XR;
@@ -15,6 +15,7 @@ using MelonLoader.Utils;
 using RumbleModdingAPI.RMAPI;
 using RumbleModUI;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem.XR;
@@ -25,9 +26,11 @@ using AudioManager = RumbleModdingAPI.RMAPI.AudioManager;
 using BuildInfo = BlindRumble.Information.BuildInfo;
 
 [assembly: MelonInfo(typeof(BlindRumble.SonarMode), BuildInfo.ModName, BuildInfo.ModVersion, BuildInfo.Author)]
-[assembly: MelonGame(null, null)]
+[assembly: MelonGame("Buckethead Entertainment", "RUMBLE")]
+[assembly: MelonColor(255, 255, 255, 255)]
+[assembly: MelonAuthorColor(255, 255, 255, 255)]
+[assembly: VerifyLoaderVersion(0, 7, 2, true)]
 
-// CHECK LINES 1157-1180 + 1261 + 1236
 
 namespace BlindRumble
 {
@@ -88,13 +91,7 @@ namespace BlindRumble
         private ModSetting<string> soundFilePath;
 
 
-        public override void OnEarlyInitializeMelon()
-        {
-            base.OnEarlyInitializeMelon();
-
-            // This makes sure the audio can be played, and puts a warning in the log if file isnt there
-            SoundCheck((string)soundFilePath.SavedValue);
-        }
+    
 
         public override void OnLateInitializeMelon()
         {
@@ -124,6 +121,8 @@ namespace BlindRumble
             Mod.GetFromFile();
 
             UI.instance.AddMod(Mod);
+
+            SoundCheck((string)soundFilePath.SavedValue);
         }
 
 
@@ -1603,12 +1602,16 @@ namespace BlindRumble
             yield return new WaitForSeconds(0.5f);
 
             GameObject armMesh = GameObject.Find("BootLoaderPlayer/Visuals/Left").gameObject;
-            GameObject invertedSphere = GameObject.Find("________________SCENE_________________/Text/Iverted sphere").gameObject;
-            newParent = GameObjects.DDOL.GameInstance.GetGameObject();
+            /*GameObject invertedSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            invertedSphere.transform.localScale = new Vector3(1000, 1000, 1000);
+            FlipNormals(invertedSphere);
+            Material blackMaterial = new Material(Shader.Find("Shader Graphs/RUMBLE_Transperent"));
+            blackMaterial.color = new Color(0, 0, 0, 1);
+            invertedSphere.GetComponent<Renderer>().material = blackMaterial;
+            GameObject.Destroy(invertedSphere.GetComponent<Collider>()); newParent = GameObjects.DDOL.GameInstance.GetGameObject();*/
 
             GameObject armMeshClone = GameObject.Instantiate(armMesh).gameObject;
             GameObject armMeshClone1 = GameObject.Instantiate(armMesh).gameObject;
-            GameObject invertedSphereClone = GameObject.Instantiate(invertedSphere).gameObject;
 
             Material invisibleMaterial = new Material(Shader.Find("Shader Graphs/RUMBLE_Transperent"));
             invisibleMaterial.color = new Color(0, 0, 0, 0);
@@ -1622,11 +1625,9 @@ namespace BlindRumble
             armMeshClone1.GetComponent<Renderer>().material = invisibleMaterial;
             armMeshClone1.transform.parent = newParent.transform;
 
-            invertedSphereClone.transform.localScale = new UnityEngine.Vector3(1000, 1000, 1000);
-            invertedSphereClone.SetActive(false);
-            invertedSphereClone.name = "InvertedSphereClone";
-            invertedSphereClone.GetComponent<Renderer>().material.color = new Color(0, 0, 0, 1);
-            invertedSphereClone.transform.parent = newParent.transform;
+           /* invertedSphere.SetActive(false);
+            invertedSphere.name = "InvertedSphereClone";
+            invertedSphere.transform.parent = newParent.transform;*/
         }
 
 

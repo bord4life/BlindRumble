@@ -18,7 +18,6 @@ namespace BlindRumble
         {
             private static void Postfix(PlayerMovement __instance)
             {
-                RumbleModdingAPI.RMAPI.AudioManager.CreateAudioCall("C:\\Users\\johar\\source\\repos\\Blind rumble\\Blind rumble\\seismic_slam_buildup.wav", 50);
                 
                 if ((UnityEngine.Object)__instance != (UnityEngine.Object)Singleton<PlayerManager>.instance.localPlayer.Controller.GetSubsystem<PlayerMovement>())
                 {
@@ -61,7 +60,7 @@ namespace BlindRumble
                 GameObject shockwaveSphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 GameObject.Destroy(shockwaveSphere.GetComponent<Collider>());
 
-                //FlipNormals(shockwaveSphere);
+                SonarMode.FlipNormals(shockwaveSphere);
 
                 shockwaveSphere.transform.localScale = Vector3.zero;
                 shockwaveSphere.transform.position = playerManager.localPlayer.Controller.transform.GetChild(1).GetChild(0).GetChild(0).position + playerManager.localPlayer.Controller.transform.GetChild(1).GetChild(0).GetChild(0).TransformDirection(new Vector3(0, 0, 3f));

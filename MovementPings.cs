@@ -1,6 +1,7 @@
 ﻿using BlindRumble;
 using HarmonyLib;
 using Il2CppRUMBLE.Managers;
+// using Il2CppSystem.Collections.Generic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,7 +79,7 @@ namespace BlindRumble
 
                         float boxRadius = 3.0f;
 
-                        List<GameObject> overlappedObjects = PerformInitialOverlapCheck(boxCenter, boxRadius, headsetTransform.rotation, poolParent);
+                        List<GameObject> overlappedObjects = SonarMode.PerformInitialOverlapCheck(boxCenter, boxRadius, headsetTransform.rotation, poolParent);
 
                         break;
                     }
