@@ -72,10 +72,10 @@ namespace BlindRumble2
             {
                 GameObject controller = processor.Cast<Il2CppRUMBLE.MoveSystem.PlayerStackProcessor>().gameObject;
 
-                if (controller == playerManager.localPlayer.Controller.gameObject)
-                {
-                    return;
-                }
+                //if (controller == playerManager.localPlayer.Controller.gameObject)
+                //{
+                //    return;
+                //}
 
 
                 GameObject visualsLocal = controller.transform.GetChild(1).gameObject;
