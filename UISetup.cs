@@ -41,7 +41,7 @@ namespace BlindRumble2
             UI.Register(this, category1, category2);
 
             modEnabled = enabledMod.Value;
-            EIGym = enableInGym.Value;
+            // EIGym = enableInGym.Value;
             EIPark = enableInPark.Value;
             EIMatch = enableInMatch.Value;
             MainSonar = StringToColor(MainColor.Value);

@@ -1,5 +1,6 @@
 ﻿using Il2CppOculus.Platform;
 using Il2CppPhoton.Pun;
+using Il2CppPhoton.Voice.Unity;
 using Il2CppRootMotion.FinalIK;
 using Il2CppRUMBLE.Players;
 using Il2CppRUMBLE.Players.Scaling;
@@ -11,8 +12,8 @@ using UnityEngine;
 
 [assembly: MelonInfo(typeof(BlindRumble2.Core), BlindRumble2.BuildInfo.ModName, BlindRumble2.BuildInfo.ModVersion, BlindRumble2.BuildInfo.Author)]
 [assembly: MelonGame("Buckethead Entertainment", "RUMBLE")]
-[assembly: MelonColor(255, 255, 255, 255)]
-[assembly: MelonAuthorColor(255, 255, 255, 255)]
+[assembly: MelonColor(255, 140, 40, 220)]
+[assembly: MelonAuthorColor(255, 140, 40, 220)]
 [assembly: VerifyLoaderVersion(0, 7, 2, true)]
 [assembly: MelonAdditionalDependencies("UIFramework")]
 
@@ -27,7 +28,7 @@ namespace BlindRumble2
         public static GameObject newParent;
         public static Material sonarMaterial;
         public static bool modEnabled;
-        public static bool EIGym; // EI = EnableIn
+        public static bool EIGym = true; // EI = EnableIn
         public static bool EIPark;
         public static bool EIMatch;
         public static Color MainSonar;
@@ -35,33 +36,39 @@ namespace BlindRumble2
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
-            sceneName = CurrentSceneName;
+            CurrentSceneName = sceneName;
 
-            if (sceneName == "Loader" && modEnabled == true)
+            if (CurrentSceneName == "Loader" && modEnabled == true)
             {
+                LoggerInstance.Msg("getting sonar shader");
                 MelonCoroutines.Start(GetSonarShader());
             }
-            else
+            else if (modEnabled == true)
             {
                 Sonarify();
             }
+            else
+            {
+                LoggerInstance.Warning("Sonarify and GetSonarShader didnt work"); // remove before publishing
+                return;
+            }
         }
 
-        public IEnumerator GetSonarShader()
+        public static IEnumerator GetSonarShader()
         {
-            while (!GameObject.Find("BootLoaderPlayer/Visuals/Left"))
-            {
-                yield return null;
-            }
+            ////while (!GameObject.Find("BootLoaderPlayer/Visuals/Left"))
+            //{
+            //    yield return null;
+            //}
 
-            yield return new WaitForSeconds(0.5f);
+            //yield return new WaitForSeconds(0.5f);
 
-            GameObject armThing = GameObject.Find("BootLoaderPlayer/Visuals/Left").gameObject;
-            GameObject armThingy = GameObject.Instantiate(armThing).gameObject;
+            //GameObject armThing = GameObject.Find("BootLoaderPlayer/Visuals/Left").gameObject;
+            //GameObject armThingy = GameObject.Instantiate(armThing).gameObject;
 
-            newParent = GameObjects.DDOL.GameInstance.GetGameObject();
+            //newParent = GameObjects.DDOL.GameInstance.GetGameObject();
 
-            while (!GameObject.Find("Shader Graphs/Pose Ghost Shader"))
+            while (!Shader.Find("Shader Graphs/Pose Ghost Shader"))
             {
                 yield return null;
             }
@@ -84,10 +91,16 @@ namespace BlindRumble2
                 {
                     return;
                 }
-                foreach (Renderer rend in GameObjects.Gym.SCENE.GYM.GetGameObject().GetComponentsInChildren<Renderer>(true))
+                else
                 {
-                    rend.material = sonarMaterial;
-                    rend.material.color = SecondarySonar;
+                    LoggerInstance.Msg("Trying to put on shaders for floor");
+                    foreach (MeshRenderer rend in GameObjects.Gym.SCENE.GYM.GetGameObject().GetComponentsInChildren<MeshRenderer>(true))
+                    {
+                        rend.material = sonarMaterial;
+                        rend.material.color = SecondarySonar;
+                    } LoggerInstance.Msg("Tried + Trying Gondola.Cabin");
+                    GameObjects.Gym.INTERACTABLES.Gondola.Cabin.GetGameObject().GetComponent<MeshRenderer>().material = sonarMaterial;
+                    LoggerInstance.Msg("Tried");
                 }
             }
 
@@ -177,6 +190,13 @@ namespace BlindRumble2
         public override void OnLateInitializeMelon()
         {
             Instance = this;
+
+            if (modEnabled == false)
+            {
+                EIGym = false;
+                EIPark = false;
+                EIMatch = false;
+            }
         }
 
         public static Color StringToColor(string colorString) // seperates the values into smth useable by color system
@@ -187,6 +207,16 @@ namespace BlindRumble2
             float b = float.Parse(parts[2].Trim());
             float a = float.Parse(parts[3].Trim());
             return new Color(r, g, b, a);
+        }
+
+        public override void OnDeinitializeMelon()
+        {
+            if (modEnabled == false)
+            {
+                EIGym = enableInGym.Value;
+                EIPark = enableInPark.Value;
+                EIMatch = enableInMatch.Value;
+            }
         }
     }
 }

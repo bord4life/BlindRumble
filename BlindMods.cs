@@ -12,7 +12,7 @@ namespace BlindRumble2
 {
     internal class BlindMods
     {
-        public void HostClientFix()
+        public static void ClientHostFix()
         {
             if (GameObject.Find("MatchInfoMod") && CurrentSceneName.Contains("Map"))
             {
