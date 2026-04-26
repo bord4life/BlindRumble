@@ -9,6 +9,7 @@ using MelonLoader;
 using RumbleModdingAPI.RMAPI;
 using System.Collections;
 using UnityEngine;
+using UIFramework;
 
 [assembly: MelonInfo(typeof(BlindRumble2.Core), BlindRumble2.BuildInfo.ModName, BlindRumble2.BuildInfo.ModVersion, BlindRumble2.BuildInfo.Author)]
 [assembly: MelonGame("Buckethead Entertainment", "RUMBLE")]
@@ -20,11 +21,12 @@ using UnityEngine;
 
 namespace BlindRumble2
 {
-    public partial class Core : MelonMod
+    public class Core : MelonMod
     {
 
-        public static Core Instance;
-        public static string CurrentSceneName = "";
+        public Core Instance;
+        public bool IsShaderFound = false;
+        public static string CurrentSceneName = "Loader";
         public static GameObject newParent;
         public static Material sonarMaterial;
         public static bool modEnabled;
@@ -33,6 +35,7 @@ namespace BlindRumble2
         public static bool EIMatch;
         public static Color MainSonar;
         public static Color SecondarySonar;
+        public static MelonLogger.Instance loggerInstance;
 
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
@@ -40,54 +43,35 @@ namespace BlindRumble2
 
             if (CurrentSceneName == "Loader" && modEnabled == true)
             {
-                LoggerInstance.Msg("getting sonar shader");
-                MelonCoroutines.Start(GetSonarShader());
+                GetSonarShader();
             }
-            else if (modEnabled == true)
+            else if (modEnabled == true && IsShaderFound == true)
             {
-                Sonarify();
+                SonarifyScene();
             }
             else
             {
-                LoggerInstance.Warning("Sonarify and GetSonarShader didnt work"); // remove before publishing
                 return;
             }
         }
 
-        public static IEnumerator GetSonarShader()
+        public void GetSonarShader()
         {
-            ////while (!GameObject.Find("BootLoaderPlayer/Visuals/Left"))
-            //{
-            //    yield return null;
-            //}
-
-            //yield return new WaitForSeconds(0.5f);
-
-            //GameObject armThing = GameObject.Find("BootLoaderPlayer/Visuals/Left").gameObject;
-            //GameObject armThingy = GameObject.Instantiate(armThing).gameObject;
-
-            //newParent = GameObjects.DDOL.GameInstance.GetGameObject();
-
-            while (!Shader.Find("Shader Graphs/Pose Ghost Shader"))
+            sonarMaterial = new Material(Shader.Find("Shader Graphs/Pose Ghost Shader"))
             {
-                yield return null;
-            }
+                hideFlags = HideFlags.DontUnloadUnusedAsset,
+                color = new Color(0, 0, 0, 0)
+            };
 
-            Material sonarMaterial = new Material(Shader.Find("Shader Graphs/Pose Ghost Shader"));
-            sonarMaterial.color = new Color(0, 0, 0, 0);
-
-            //armThingy.SetActive(false);
-            //armThingy.name = "InvisibleObject";
-            //armThingy.GetComponent<Renderer>().material = sonarMaterial;
-            //armThingy.transform.parent = newParent.transform;
+            IsShaderFound = true;
         }
 
-        internal void Sonarify()
+        public void SonarifyScene()
         {
             // Makes everything have sonar shader
             if (CurrentSceneName == "Gym") // sonars gym
             {
-                if (EIGym == false)
+                if (EIGym == false || IsShaderFound == false)
                 {
                     return;
                 }
@@ -98,7 +82,8 @@ namespace BlindRumble2
                     {
                         rend.material = sonarMaterial;
                         rend.material.color = SecondarySonar;
-                    } LoggerInstance.Msg("Tried + Trying Gondola.Cabin");
+                    }
+                    LoggerInstance.Msg("Tried + Trying Gondola.Cabin");
                     GameObjects.Gym.INTERACTABLES.Gondola.Cabin.GetGameObject().GetComponent<MeshRenderer>().material = sonarMaterial;
                     LoggerInstance.Msg("Tried");
                 }
@@ -106,7 +91,7 @@ namespace BlindRumble2
 
             if (CurrentSceneName == "Park") // sonars park
             {
-                if (EIPark == false)
+                if (EIPark == false || IsShaderFound == false)
                 {
                     return;
                 }
@@ -122,7 +107,7 @@ namespace BlindRumble2
             }
             if (CurrentSceneName.Contains("Map"))
             {
-                if (EIMatch == false)
+                if (EIMatch == false || IsShaderFound == false)
                 {
                     return;
                 }
@@ -146,7 +131,7 @@ namespace BlindRumble2
             }
         }
 
-        public IEnumerator CreatePlayerSnapshot(PlayerController player)
+        public static IEnumerator CreatePlayerSnapshot(PlayerController player)
         {
 
             //Creates a temporary image of where the player used to be when a sound happened nearby.
@@ -166,8 +151,20 @@ namespace BlindRumble2
             foreach (var renderer in cloneVisuals.GetComponentsInChildren<Renderer>())
             {
                 renderer.material = sonarMaterial;
-                renderer.material.color = SecondarySonar;
+                renderer.material.color = MainSonar;
             }
+
+            cloneVisuals.GetComponent<Animator>().enabled = true;
+            cloneVisuals.GetComponent<PlayerAnimator>().enabled = true;
+            cloneVisuals.GetComponent<RigDefinition>().enabled = true;
+            cloneVisuals.GetComponent<PlayerVisuals>().enabled = true;
+            cloneVisuals.GetComponent<PlayerAudioPresence>().enabled = true;
+            cloneVisuals.GetComponent<PlayerHandPresence>().enabled = true;
+            cloneVisuals.GetComponent<PlayerScaling>().enabled = true;
+            cloneVisuals.GetComponent<PhotonAnimatorView>().enabled = true;
+            cloneVisuals.GetComponent<PlayerIK>().enabled = true;
+            cloneVisuals.GetComponent<VRIK>().enabled = true;
+            cloneVisuals.GetComponent<PhotonView>().enabled = true;
 
             yield return new WaitForSeconds(1.5f);
 
@@ -187,6 +184,17 @@ namespace BlindRumble2
 
         }
 
+        public static IEnumerator CreateStructureSnapshot(float range)
+        {
+            yield return null;
+        }
+
+        public override void OnInitializeMelon()
+        {
+            UISetup.LoadPrefs();
+            UI.Register((MelonBase)this, UISetup.category1, UISetup.category2);
+        }
+
         public override void OnLateInitializeMelon()
         {
             Instance = this;
@@ -196,26 +204,6 @@ namespace BlindRumble2
                 EIGym = false;
                 EIPark = false;
                 EIMatch = false;
-            }
-        }
-
-        public static Color StringToColor(string colorString) // seperates the values into smth useable by color system
-        {
-            string[] parts = colorString.Split(',');
-            float r = float.Parse(parts[0].Trim());
-            float g = float.Parse(parts[1].Trim());
-            float b = float.Parse(parts[2].Trim());
-            float a = float.Parse(parts[3].Trim());
-            return new Color(r, g, b, a);
-        }
-
-        public override void OnDeinitializeMelon()
-        {
-            if (modEnabled == false)
-            {
-                EIGym = enableInGym.Value;
-                EIPark = enableInPark.Value;
-                EIMatch = enableInMatch.Value;
             }
         }
     }

@@ -1,13 +1,16 @@
 ﻿using HarmonyLib;
 using Il2CppRUMBLE.Managers;
 using Il2CppRUMBLE.Players;
+using Il2CppRUMBLE.Players.Subsystems;
+using RumbleModdingAPI.RMAPI;
 using UnityEngine;
+using static BlindRumble2.Core;
 using static RumbleModdingAPI.RMAPI.GameObjects.Gym.LOGIC;
 
 namespace BlindRumble2
 {
     [HarmonyPatch(typeof(Il2CppRUMBLE.MoveSystem.Stack), "Execute")]
-    internal class Pinging
+    internal class MovePinging
     {
         public static UnityEngine.Bounds bounds;
         // pings whenever structure spawns
@@ -27,7 +30,7 @@ namespace BlindRumble2
                 return;
             }
             // if hold or flick, or mod is disabled, skip
-            if (Core.modEnabled == false || __instance.cachedName == "HoldRight" || __instance.cachedName == "HoldLeft" || __instance.cachedName == "Flick")
+            if (modEnabled == false || __instance.cachedName == "HoldRight" || __instance.cachedName == "HoldLeft" || __instance.cachedName == "Flick")
             {
                 return;
             }
@@ -83,7 +86,25 @@ namespace BlindRumble2
                 PlayerController playerController = controller.GetComponent<PlayerController>();
 
                 // modInstance.RenderClone(visualsLocal.gameObject, poolParent, false);
-                modInstance.CreatePlayerSnapshot(playerController);
+                CreatePlayerSnapshot(playerController);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Il2CppRUMBLE.Players.Subsystems.PlayerBoxInteractionSystem), "OnPlayerBoxInteraction", new Type[] {typeof(PlayerBoxInteractionTrigger), typeof(PlayerBoxInteractionTrigger)})]
+    internal class FistPinging
+    {
+        [HarmonyPostfix]
+        private static void Postfix(PlayerBoxInteractionTrigger first, PlayerBoxInteractionTrigger second)
+        {
+            var localPlayer = Calls.Players.GetLocalPlayer();
+            var handOne = first.parentSystem.parentController.assignedPlayer;
+            var handTwo = second.parentSystem.parentController.assignedPlayer;
+            var radius = 2f;
+
+            if (handOne == localPlayer && handTwo == localPlayer)
+            {
+                CreateStructureSnapshot(2f);
             }
         }
     }

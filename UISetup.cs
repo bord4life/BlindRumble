@@ -1,23 +1,24 @@
 ﻿using MelonLoader;
-using UIFramework;
+using UnityEngine;
+using static BlindRumble2.Core;
 
 namespace BlindRumble2
 {
-    public partial class Core
+    public class UISetup
     {
-        private const string USER_DATA = "UserData/BlindRumble/";
-        private const string CONFIG_FILE = "config.cfg";
+        internal const string USER_DATA = "UserData/BlindRumble/";
+        internal const string CONFIG_FILE = "config.cfg";
 
-        private MelonPreferences_Category category1;
-        private MelonPreferences_Category category2;
-        private MelonPreferences_Entry<bool> enabledMod;
-        private MelonPreferences_Entry<bool> enableInGym;
-        private MelonPreferences_Entry<bool> enableInPark;
-        private MelonPreferences_Entry<bool> enableInMatch;
-        private MelonPreferences_Entry<string> MainColor;
-        private MelonPreferences_Entry<string> SecondaryColor;
+        internal static MelonPreferences_Category category1;
+        internal static MelonPreferences_Category category2;
+        internal static MelonPreferences_Entry<bool> enabledMod;
+        internal static MelonPreferences_Entry<bool> enableInGym;
+        internal static MelonPreferences_Entry<bool> enableInPark;
+        internal static MelonPreferences_Entry<bool> enableInMatch;
+        internal static MelonPreferences_Entry<string> MainColor;
+        internal static MelonPreferences_Entry<string> SecondaryColor;
 
-        public override void OnInitializeMelon()
+        public static void LoadPrefs()
         {
             if (!Directory.Exists(USER_DATA))
             {
@@ -35,17 +36,18 @@ namespace BlindRumble2
             enableInGym = category1.CreateEntry("enableInGym", false, "Enable In Gym", "Enables Blind Rumble within Gym. Defaults to false.");
             enableInPark = category1.CreateEntry("enableInPark", true, "Enable In Park", "Enables Blind Rumble within Park. Defaults to true.");
             enableInMatch = category1.CreateEntry("enableInMatch", true, "Enable In Match", "Enables Blind Rumble within a match. Defaults to true.");
-            MainColor = category2.CreateEntry("MainColor", "252, 216, 85, 1", "Main Color", "Color used for structures and players. RGBA format.");
-            SecondaryColor = category2.CreateEntry("SecondaryColor", "252, 216, 85, 1", "Secondary Color", "Color used for scene stuff. RGBA format.");
+            MainColor = category2.CreateEntry("MainColor", "252, 216, 85, 1", "Main Color", "Color used for structures and players. Hex format.");
+            SecondaryColor = category2.CreateEntry("SecondaryColor", "252, 216, 85, 1", "Secondary Color", "Color used for scene stuff. Hex format.");
+        }
 
-            UI.Register(this, category1, category2);
-
+        public static void SetPrefs()
+        {
             modEnabled = enabledMod.Value;
-            // EIGym = enableInGym.Value;
+            EIGym = enableInGym.Value;
             EIPark = enableInPark.Value;
             EIMatch = enableInMatch.Value;
-            MainSonar = StringToColor(MainColor.Value);
-            SecondarySonar = StringToColor(SecondaryColor.Value);
+            if (!ColorUtility.TryParseHtmlString(MainColor.Value, out MainSonar)) loggerInstance.Error("Main Color did not save!");
+            if (!ColorUtility.TryParseHtmlString(SecondaryColor.Value, out SecondarySonar)) loggerInstance.Error("Secondary Color did not save!");
         }
     }
 }
