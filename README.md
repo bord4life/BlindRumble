@@ -2,8 +2,23 @@
 
 
 This mod completely changes the graphics to a echolocation system. Now, you use sound to see things.
-With this, you won't always see your opponent, so you have to predict, predict, PREDICT! As sound has a delay in real life, there is a delay before you can see your opponent or structures.
+With this, you won't always see your opponent, so you have to predict and stay ahead of them at all times! As sound has a delay in real life, there is a delay before you can see your opponent or structures.
 <hr>
+
+## To-Do
+- [x] Learn some C#
+- [ ] Create a good pinging system
+	- [ ] Players
+	- [ ] Structures
+- [ ] Shade the maps properly
+	- [ ] Gym
+	- [ ] Park
+	- [ ] Ring
+	- [ ] Pit
+- [x] Add UIF settings
+- [ ] Add Audio
+- [ ] Release the mod
+- [ ] Make sure it doesnt break after the next update
 
 ## Launch Trailer
 [![Blind RUMBLE Trailer](https://img.youtube.com/vi/XrmNNONQRi0/0.jpg)](https://youtu.be/XrmNNONQRi0)
