@@ -1,2 +1,4 @@
 /BlindRumble/.vs
 /.vs
+BlindRumble/GlobalSuppressions.cs
+.editorconfig

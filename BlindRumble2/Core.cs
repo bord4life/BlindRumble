@@ -27,8 +27,9 @@ namespace BlindRumble2
     {
         #region Variables
 
-        public Core Instance;
-        public bool IsShaderFound = false;
+        public static Core instance;
+        public Core() => instance = this;
+        public static bool IsShaderFound = false;
         public static string CurrentSceneName = "Loader";
         public static Material sonarMaterial;
         public static bool modEnabled = true;
@@ -76,14 +77,15 @@ namespace BlindRumble2
 
         public override void OnInitializeMelon()
         {
+            loggerInstance = LoggerInstance;
             UISetup.LoadPrefs();
+            UISetup.SetPrefs();
             UI.Register((MelonBase)this, UISetup.category1, UISetup.category2);
+            UI.Register((MelonBase)this, UISetup.category1, UISetup.category2).OnModSaved += UISetup.SetPrefs;
         }
 
         public override void OnLateInitializeMelon()
         {
-            Instance = this;
-
             Actions.onPlayerHealthChanged += (player, damage) =>
             {
                 if (player != Calls.Players.GetLocalPlayer())
@@ -131,7 +133,7 @@ namespace BlindRumble2
         #endregion
 
         #region Sonar stuff
-        public void GetSonarShader()
+        public static void GetSonarShader()
         {
             sonarMaterial = new Material(Shader.Find("Shader Graphs/Pose Ghost Shader"))
             {
@@ -147,7 +149,7 @@ namespace BlindRumble2
         //    MelonMod.FindMelon("Rumble Dark Mode", "ERROR").Unregister();
         //}
 
-        public IEnumerator SonarifyScene()
+        public static IEnumerator SonarifyScene()
         {
             // Makes everything have sonar shader
             if (CurrentSceneName == "Gym") // sonars gym
@@ -244,23 +246,22 @@ namespace BlindRumble2
             if (isItStructure == false)
             {
                 //Creates a temporary image of where the player used to be when a sound happened nearby.
-                GameObject cloneVisuals = GameObject.Instantiate(player.PlayerVisuals.gameObject, clones);
-                cloneVisuals.GetComponent<Animator>().enabled = false;
-                cloneVisuals.GetComponent<PlayerAnimator>().enabled = false;
-                cloneVisuals.GetComponent<RigDefinition>().enabled = false;
-                cloneVisuals.GetComponent<PlayerVisuals>().enabled = false;
-                cloneVisuals.GetComponent<PlayerAudioPresence>().enabled = false;
-                cloneVisuals.GetComponent<PlayerHandPresence>().enabled = false;
-                cloneVisuals.GetComponent<PlayerScaling>().enabled = false;
-                cloneVisuals.GetComponent<PhotonAnimatorView>().enabled = false;
-
-
-                foreach (var renderer in cloneVisuals.GetComponentsInChildren<Renderer>())
+                foreach (Behaviour component in player.GetComponents<Behaviour>())
                 {
-                    renderer.material = sonarMaterial;
-                    renderer.material.color = MainSonar;
+                    component.enabled = false;
                 }
 
+                Transform cloneVisuals = GameObject.Instantiate(player.PlayerVisuals.gameObject, clones).transform;
+                
+                foreach (Behaviour component in cloneVisuals.GetComponents<Behaviour>())
+                {
+                    component.enabled = false;
+                }
+
+                SkinnedMeshRenderer renderer = cloneVisuals.GetComponent<SkinnedMeshRenderer>();  
+                renderer.material = sonarMaterial;
+                renderer.material.color = MainSonar;
+                
                 if (!poseTrigger)
                 {
                     yield return new WaitForSeconds(1.45f);
@@ -357,7 +358,7 @@ namespace BlindRumble2
 
         public static void PopIn()
         {
-            Vector3 pos =  PlayerManager.instance.localPlayer.Controller.transform.position;
+            Vector3 pos = PlayerManager.instance.localPlayer.Controller.transform.position;
 
             Collider[] possibleInteractibles = Physics.OverlapSphere(pos, 6);
             List<GameObject> Interactibles = new();
