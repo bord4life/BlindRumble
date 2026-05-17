@@ -80,7 +80,6 @@ namespace BlindRumble2
             loggerInstance = LoggerInstance;
             UISetup.LoadPrefs();
             UISetup.SetPrefs();
-            UI.Register((MelonBase)this, UISetup.category1, UISetup.category2);
             UI.Register((MelonBase)this, UISetup.category1, UISetup.category2).OnModSaved += UISetup.SetPrefs;
         }
 
